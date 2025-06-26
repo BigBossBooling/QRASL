@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package digisocialblock.dds.v1;
+
+option go_package = "github.com/DigiSocialBlock/EchoNet/internal/protos/dds/v1;ddsv1";
+
+// Message to request storing a chunk.
+message StoreChunkRequest {
+  // CID of the chunk (Base58BTC encoded SHA-256 hash).
+  string cid = 1;
+  // The actual binary data of the chunk.
+  bytes chunk_data = 2;
+}
+
+// Response to a StoreChunkRequest.
+message StoreChunkResponse {
+  // Indicates if the store operation was successful.
+  bool success = 1;
+  // Optional: Error code if success is false.
+  uint32 error_code = 2; // Specific error codes to be defined.
+  // Optional: Error message if success is false.
+  string error_message = 3;
+}
+
+// Message to request retrieval of a chunk.
+message RetrieveChunkRequest {
+  // CID of the chunk to retrieve (Base58BTC encoded SHA-256 hash).
+  string cid = 1;
+}
+
+// Response to a RetrieveChunkRequest.
+message RetrieveChunkResponse {
+  // The actual binary data of the chunk.
+  bytes chunk_data = 1;
+  // Indicates if the retrieval was successful.
+  bool success = 2;
+  // Optional: Error code if success is false (e.g., chunk not found).
+  uint32 error_code = 3;
+  // Optional: Error message if success is false.
+  string error_message = 4;
+}
+
+// Message to find providers for a given CID.
+message FindProvidersRequest {
+  // CID for which to find providers (Base58BTC encoded SHA-256 hash).
+  // This can be a manifest_cid or a chunk_cid.
+  string cid = 1;
+}
+
+// Response to a FindProvidersRequest.
+message FindProvidersResponse {
+  // List of PeerIDs (as strings) that are known to provide the requested CID.
+  // libp2p PeerIDs are typically Base58 encoded.
+  repeated string peer_ids = 1;
+  // Indicates if the query was successful (even if no providers were found).
+  bool success = 2;
+  // Optional: Error code if the query itself failed.
+  uint32 error_code = 3;
+  // Optional: Error message if the query failed.
+  string error_message = 4;
+}
+
+// Message to instruct another node to replicate a chunk.
+message ReplicationInstruction {
+  // CID of the chunk to be replicated (Base58BTC encoded SHA-256 hash).
+  string cid = 1;
+  // Optional: Suggested source PeerID from where the target can fetch the chunk.
+  // If empty, the target node should use FindProviders.
+  string source_peer_id_hint = 2;
+}
+
+// Response to a ReplicationInstruction.
+message ReplicationResponse {
+  // Indicates if the replication instruction was accepted and initiated.
+  // Note: This does not guarantee completion of replication, only acknowledgement.
+  bool success = 1;
+  // Optional: Error code if the instruction was rejected or failed to initiate.
+  uint32 error_code = 2;
+  // Optional: Error message.
+  string error_message = 3;
+}
