@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package digisocialblock.dds.manifest.v1;
+
+option go_package = "github.com/DigiSocialBlock/EchoNet/internal/protos/dds/manifest/v1;manifestv1";
+
+// ContentManifestV1 defines the structure for a manifest that describes
+// a piece of content composed of one or more data chunks.
+message ContentManifestV1 {
+  // List of CIDs for the data chunks, in order.
+  // Each CID is a Base58BTC encoded SHA-256 hash of an individual data chunk.
+  repeated string chunk_cids = 1;
+
+  // SHA-256 hash of the original, complete content before it was chunked.
+  // This is raw 32 bytes.
+  bytes original_content_sha256 = 2;
+
+  // Total size of the original, complete content in bytes.
+  uint64 original_content_size_bytes = 3;
+
+  // Optional: Unix timestamp (in seconds) of when the manifest was created.
+  int64 creation_timestamp = 4;
+
+  // Optional: MIME type of the original content, if known (e.g., "image/jpeg", "text/plain").
+  string mime_type = 5;
+
+  // Optional: Filename of the original content, if applicable.
+  string filename = 6;
+
+  // Future-proofing: Placeholder for additional metadata key-value pairs.
+  map<string, string> custom_metadata = 7;
+}
