@@ -7,15 +7,16 @@
 package chunking
 
 import (
+	"context" // Added
 	"crypto/sha256"
 	"errors"
 	"fmt"
 	"io"
-	"time" // Added
+	"time"
 
-	"github.com/DigiSocialBlock/EchoNet/internal/protos/dds/manifest/v1" // Added
+	"github.com/DigiSocialBlock/EchoNet/internal/protos/dds/manifest/v1"
 	"github.com/btcsuite/btcutil/base58"
-	"google.golang.org/protobuf/proto" // Added
+	"google.golang.org/protobuf/proto"
 )
 
 // DefaultChunkSize is the standard size for content chunks in bytes.
@@ -29,6 +30,57 @@ var ErrInvalidContentSize = errors.New("content size cannot be negative")
 // ErrReadInconsistentSize indicates that the number of bytes read from io.Reader
 // does not match the provided contentSize, or more bytes were read than expected.
 var ErrReadInconsistentSize = errors.New("number of bytes read from reader inconsistent with contentSize")
+
+// Chunker defines the operations for content chunking and manifest generation.
+// Implementations of this interface handle the logic of breaking down content,
+// generating CIDs for chunks, and creating a manifest to describe the content.
+type Chunker interface {
+	// ChunkData reads content from an io.Reader and divides it into Chunks.
+	// Each Chunk includes its data and its generated CID.
+	// contentSize is used to determine how many bytes to read in total.
+	ChunkData(ctx context.Context, content io.Reader, contentSize uint64) ([]Chunk, error)
+
+	// GenerateManifest creates a ContentManifestV1 protobuf message from a list of chunks
+	// and other metadata. It also calculates and returns the CID for this manifest.
+	GenerateManifest(
+		ctx context.Context,
+		chunks []Chunk,
+		originalContentSHA256 []byte, // Raw SHA256 hash
+		originalContentSizeBytes uint64,
+		creationTime time.Time, // Go time.Time object
+		mimeType string,
+		filename string,
+		customMeta map[string]string,
+	) (*manifestv1.ContentManifestV1, string, error)
+}
+
+// defaultChunker is a concrete implementation of the Chunker interface.
+type defaultChunker struct{}
+
+// NewDefaultChunker creates a new instance of the default Chunker implementation.
+func NewDefaultChunker() Chunker {
+	return &defaultChunker{}
+}
+
+// ChunkData implements the Chunker interface by calling the package-level ChunkData function.
+func (dc *defaultChunker) ChunkData(ctx context.Context, content io.Reader, contentSize uint64) ([]Chunk, error) {
+	return PackageChunkData(ctx, content, contentSize) // Renamed to avoid collision
+}
+
+// GenerateManifest implements the Chunker interface by calling the package-level GenerateManifest function.
+func (dc *defaultChunker) GenerateManifest(
+	ctx context.Context,
+	chunks []Chunk,
+	originalContentSHA256 []byte,
+	originalContentSizeBytes uint64,
+	creationTime time.Time,
+	mimeType string,
+	filename string,
+	customMeta map[string]string,
+) (*manifestv1.ContentManifestV1, string, error) {
+	return PackageGenerateManifest(ctx, chunks, originalContentSHA256, originalContentSizeBytes, creationTime, mimeType, filename, customMeta) // Renamed
+}
+
 
 // Chunk represents a piece of content data.
 // The CID field will be populated in a subsequent task.
@@ -53,10 +105,11 @@ func GenerateCID(data []byte) (string, error) {
 	return cid, nil
 }
 
-// ChunkData reads content from an io.Reader and divides it into Chunks of DefaultChunkSize.
+// PackageChunkData reads content from an io.Reader and divides it into Chunks of DefaultChunkSize.
 // Each chunk includes its generated CID.
 // The contentSize parameter is used to determine how many bytes to read in total.
-func ChunkData(content io.Reader, contentSize uint64) ([]Chunk, error) {
+// Renamed from ChunkData to PackageChunkData to avoid conflict with interface method.
+func PackageChunkData(ctx context.Context, content io.Reader, contentSize uint64) ([]Chunk, error) {
 	// contentSize being uint64 handles the negative case implicitly.
 
 	if contentSize == 0 {
@@ -115,9 +168,11 @@ func ChunkData(content io.Reader, contentSize uint64) ([]Chunk, error) {
 	return chunks, nil
 }
 
-// GenerateManifest creates a ContentManifestV1 protobuf message from a list of chunks
+// PackageGenerateManifest creates a ContentManifestV1 protobuf message from a list of chunks
 // and other metadata. It also calculates the CID for this manifest.
-func GenerateManifest(
+// Renamed from GenerateManifest to PackageGenerateManifest.
+func PackageGenerateManifest(
+	ctx context.Context,
 	chunks []Chunk,
 	originalContentSHA256 []byte, // Raw SHA256 hash
 	originalContentSizeBytes uint64,
@@ -128,6 +183,7 @@ func GenerateManifest(
 ) (*manifestv1.ContentManifestV1, string, error) {
 
 	if len(originalContentSHA256) != sha256.Size {
+		// Consider using ctx for logging/tracing here in future
 		return nil, "", fmt.Errorf("originalContentSHA256 must be %d bytes, got %d", sha256.Size, len(originalContentSHA256))
 	}
 
