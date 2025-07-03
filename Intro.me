@@ -18,8 +18,10 @@ The Synchrony Hub: Beacon Chain
 The Engine Room: Block Structures & Hybrid Consensus
 
 Intent-Driven Hierarchical DAG Blocks (IHDB)
+The IHDB is a sophisticated structure used in Shards 0, 1, and 3. It processes user "intents" (desired outcomes) via a network of Solvers, who optimize execution, and uses Micro-Rollups (ZK-based) to scale transaction throughput within blocks. This allows for highly efficient handling of complex interactions.
 
 Simpler Adaptive DAG Blocks
+Used in Shards 2 and 6, this block structure is a streamlined version of the IHDB. It omits the intent/solver mechanism and micro-rollups, focusing on direct transaction processing and data recording within a secure DAG. This reduces overhead for shards with more straightforward operational needs, demonstrating a modular approach to block design.
 
 Hybrid Consensus Mechanism
 
@@ -27,7 +29,7 @@ The Economic Fabric: Network Roles & Sustainable Tokenomics
 
 Key Participants
 
-The $QRASL Token: A Model for Scarcity
+The $QRASL Token: A Model for Adaptive Scarcity
 
 Technological Bedrock: Core Features
 
@@ -64,11 +66,17 @@ Formal Verification & Crypto-Agility: Methodologies for high assurance and futur
 Architectural Grandeur: Heterogeneous Sharding & The Beacon Chain
 QRASL's architecture is its crown jewel, built on a heterogeneous sharding model coordinated by a central Beacon Chain.
 
-The Seven Specialized Shards
-Each of QRASL's 7 shards is purpose-built, optimizing the network for diverse functions:
+The Optimized Shard Structure (6 Primary Shards)
+QRASL's architecture now features 6 primary, distinct shards, with the conceptual role of a seventh (formerly Shard 4) integrated into others to enhance efficiency and reduce complexity. Each shard is purpose-built:
 
-Shards 0 & 1 (General Execution / High-Interaction DApps): These high-throughput shards utilize the Intent-Driven Hierarchical DAG Block (IHDB) protocol, ideal for complex dApps requiring numerous user interactions.
+Shards 0 & 1 (General Execution / High-Interaction DApps): These high-throughput shards utilize the Intent-Driven Hierarchical DAG Block (IHDB) protocol. They are ideal for complex dApps requiring numerous user interactions. Shard 0 might cater to dApps with broad state dependencies, while Shard 1 could be fine-tuned for applications with more localized, high-frequency state changes.
 
-Shard 2 (Auxiliary Computation & ZKP Verification): Running a simpler Adaptive DAG Block structure, this shard is dedicated to specialized tasks like verifiable off-chain computation, oracle services, and optimized ZKP verification.
+Shard 2 (Auxiliary Computation & ZKP Verification): Running a simpler Adaptive DAG Block structure (a streamlined version of IHDB, omitting solver networks and micro-rollups), this shard is dedicated to specialized tasks like verifiable off-chain computation results, oracle services, complex background calculations, and optimized ZKP verification for the network.
 
-Shard 3 (High-Throughput DeFi / Complex Transactions): Also leveraging the IHDB protocol, this shard is optimized for DeFi, handling high transaction speeds, low latency, complex state interactions, and economic intents
+Shard 3 (High-Throughput DeFi / Complex Transactions): This shard leverages a specialized variant of the IHDB protocol, meticulously optimized for the demands of decentralized finance. It's engineered for high transaction speeds, low latency, intricate state interactions (e.g., multi-layered lending protocols, complex derivatives), and efficient processing of economic intents via DeFi-centric Solvers.
+
+(Shard 4 - Integrated): The role of Shard 4 has been consolidated. Its potential use for experimental features or overflow is now part of Shard 5's customizable nature or managed by dynamic resource allocation.
+
+Shard 5 (Application-Specific / Customizable): This shard provides unparalleled flexibility for deploying large-scale DApps or specialized subnetworks. It can be configured to run either IHDBs for complex applications or simpler block structures for more straightforward tasks, effectively absorbing the experimental capacity previously envisioned for a separate Shard 4.
+
+Shard 6 (Governance & Data Bridge): Operating with a secure and auditable Simpler Adaptive DAG Block, this shard is the bedrock of QRASL's governance and data integrity. It executes on-chain governance decisions, hosts the proposal system, records state commitments from all other shards, anchors the DID system, and manages historical data. Its 30 Delegators and 30 Validators are chosen via staking and community endorsement, ensuring robust and decentralized oversight.

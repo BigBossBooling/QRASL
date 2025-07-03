@@ -29,8 +29,8 @@ In an era demanding unprecedented throughput, robust security against emerging t
 ## Key Features
 
   * **Post-Quantum Cryptography (PQC):** Foundational security against future quantum computing threats.
-  * **Heterogeneous Sharding:** Parallelizes processing and allows functional specialization across 7 distinct shards.
-  * **Intent-Driven Hierarchical DAG Blocks (IHDB):** Advanced block structure for high-interaction dApps, featuring causality proofs, user intent processing via Solvers, and embedded Micro-Rollups for scaling.
+  * **Heterogeneous Sharding:** Parallelizes processing and allows functional specialization across 6 primary, distinct shards (with a 7th, Shard 4, having its conceptual role integrated into others for optimized resource allocation).
+  * **Intent-Driven Hierarchical DAG Blocks (IHDB):** Advanced block structure for high-interaction dApps, featuring causality proofs, user intent processing via Solvers, and embedded Micro-Rollups for scaling. Used by Shards 0, 1, and 3, each with specific optimizations for their domain (general dApps vs. high-throughput DeFi).
   * **ZKP-Recursive Cross-Shard Message Bus:** Secure and scalable interoperability between all shards using cutting-edge Zero-Knowledge Proofs.
   * **Adaptive & Sustainable Tokenomics:** Controlled inflation with aggressive burn mechanisms designed to maintain scarcity and potentially create deflationary pressure.
   * **Native Decentralized Identity (DID):** Integrated system for on-chain identity management.
@@ -43,22 +43,22 @@ QRASL employs a heterogeneous sharding model to parallelize processing and allow
 
 ### Sharding Model
 
-The network is composed of **7 distinct shards**, each designed for specific functionalities:
+The network is composed of **6 primary, distinct shards** (Shards 0, 1, 2, 3, 5, and 6), each designed for specific functionalities. Shard 4's conceptual role has been integrated into other shards to optimize resource allocation and simplify the architecture.
 
   * **Shards 0 & 1 (General Execution / High-Interaction DApps):**
       * Utilize the **Intent-Driven Hierarchical DAG Block (IHDB)** protocol.
-      * Designed for high-throughput, general-purpose smart contract execution and complex dApps requiring efficient handling of numerous user interactions.
+      * Designed for high-throughput, general-purpose smart contract execution and complex dApps requiring efficient handling of numerous user interactions. Shard 0 might focus on dApps with broader state access, while Shard 1 could be optimized for applications with more localized, frequent interactions.
   * **Shard 2 (Auxiliary Computation & ZKP Verification):**
-      * Runs a simpler **Adaptive DAG Block** structure.
+      * Runs a simpler **Adaptive DAG Block** structure (see "Block Structures & Consensus Mechanism" for clarification on its relation to IHDB).
       * Dedicated to specialized tasks like verifiable off-chain computation results, oracle services, complex background calculations, and optimized ZKP verification.
   * **Shard 3 (High-Throughput DeFi / Complex Transactions):**
-      * Utilizes the **IHDB** protocol.
-      * Optimized for DeFi applications requiring high transaction speeds, low latency, complex state interactions, efficient handling of economic intents (e.g., swaps, lending), and potential support for Cross-Chain Atomic Swaps.
-  * **Shard 4:**
-      * Currently reserved or repurposed; its role is consolidated into other shards or reserved for future use.
+      * Utilizes an **IHDB** protocol variant, specifically optimized for DeFi.
+      * Tuned for DeFi applications requiring high transaction speeds, low latency, complex state interactions (e.g., multi-leg swaps, lending protocols), efficient handling of economic intents via DeFi-specific Solvers, and potential native support for enhanced Cross-Chain Atomic Swaps.
+  * **Shard 4 (Deprecated/Integrated):**
+      * This shard designation is deprecated. Its originally conceived functionalities (e.g., experimentation, overflow) are integrated into Shard 5 for application-specific deployments or managed dynamically by the Beacon Chain through resource allocation adjustments in other shards.
   * **Shard 5 (Application-Specific / Customizable):**
-      * Offers flexibility for deploying large-scale DApps or specialized subnetworks.
-      * Can run either IHDBs or simpler block structures as needed.
+      * Offers flexibility for deploying large-scale DApps or specialized subnetworks (potentially including those that might have fallen under Shard 4's experimental role).
+      * Can run either IHDBs or simpler block structures as needed, determined by the application's requirements.
   * **Shard 6 (Governance & Data Bridge):**
       * Runs a secure, auditable **Simpler Adaptive DAG Block** structure.
       * Acts as the network's core governance hub and immutable data anchor:
@@ -67,7 +67,7 @@ The network is composed of **7 distinct shards**, each designed for specific fun
           * Records state commitments (roots) from all other shards for global consistency checks.
           * Anchors the network's native Decentralized Identity (DID) system.
           * Stores historical network statistics and references to encrypted/archived data on decentralized storage layers.
-      * Operated by a distinct set of 30 public Delegators and 30 public Validators, holding 1/7th of total network governance voting power.
+      * Operated by a distinct set of 30 public Delegators and 30 public Validators. These participants are selected through a combination of long-term staking commitments and community endorsement via the main governance process, with periodic rotation to ensure decentralization and resilience. The number 30 is chosen to balance efficiency with robust consensus security for critical governance functions. They hold a significant fraction of the total network governance voting power, proportionate to their critical role.
 
 ### Beacon Chain / Synchrony Hub
 
@@ -84,14 +84,17 @@ QRASL employs heterogeneous block structures and a hybrid consensus mechanism:
 ### Heterogeneous Blocks
 
   * **Intent-Driven Hierarchical DAG Block (IHDB):**
-      * Used in high-activity shards (0, 1, 3).
-      * Features multiple parents with Causality Proofs (DAG).
-      * Processes User Intents via Solvers, scaling via embedded Micro-Rollups (ZK-based).
-      * Commits to Intents, Solutions, and Micro-Rollup State.
+      * Used in high-activity shards (0, 1, and 3), each potentially with domain-specific optimizations.
+      * A sophisticated structure featuring multiple parents with Causality Proofs (DAG) to order concurrent operations.
+      * Natively processes User Intents via specialized off-chain actors called Solvers, which bundle intents into optimal transaction sets.
+      * Scales transaction throughput within a block via embedded, ZK-based Micro-Rollups, which summarize many individual state changes into a single verifiable proof.
+      * Commits to User Intents, Solver Solutions (including proofs of validity/optimality), and the resulting Micro-Rollup State transitions.
   * **Simpler Adaptive DAG Block:**
-      * Used in specialized shards (2, 6).
-      * Focuses on state transitions, data recording, governance actions, or verification results within a secure DAG structure without IHDB overhead.
-      * Commits to State and Execution/Data Payloads.
+      * Used in specialized shards (2 and 6) where the overhead of full intent processing and micro-rollups is unnecessary.
+      * This structure can be conceptualized as a streamlined version of the IHDB, omitting the Solver network interaction and Micro-Rollup layers. It retains the DAG structure for ordering and concurrent processing of standard transactions or data payloads.
+      * Focuses on direct state transitions, data recording (e.g., oracle attestations, governance votes), execution of pre-defined governance actions, or logging verification results.
+      * Commits to State changes and Execution/Data Payloads directly.
+      * This design allows for shared foundational DAG logic while tailoring complexity to the shard's specific needs.
 
 ### Hybrid Consensus
 
@@ -112,10 +115,14 @@ The QRASL ecosystem involves several key participant roles and a carefully desig
 
 ### Tokenomics (Assuming $QRASL Token)
 
-  * **Supply:** 10 Billion total supply cap; max 8 Billion potential circulating supply; 2 Billion initially reserved (managed by Shard 6 governance).
-  * **Inflation:** Controlled issuance primarily via staking rewards.
-  * **Anti-Inflation/Scarcity:** Aggressive Burn Mechanisms are designed to frequently offset inflation, keeping circulating supply below 8B and potentially creating deflationary pressure. This includes a significant portion of transaction/intent fees, slashing penalties, and specific action fees. Burn rates may be adaptive and governed by Shard 6.
-  * **Incentives:** Staking rewards, Solver fees, and ZK Miner fees, along with transaction fees, create a balanced economic ecosystem.
+  * **Supply:** 10 Billion total supply cap; max 8 Billion potential circulating supply; 2 Billion initially reserved (managed by Shard 6 governance for ecosystem development, grants, etc.).
+  * **Inflation:** Controlled issuance primarily via staking rewards, designed to incentivize participation and security. The inflation rate itself may be subject to adjustment by Shard 6 governance to respond to network conditions.
+  * **Anti-Inflation/Scarcity:** Aggressive Burn Mechanisms are designed to frequently offset inflation, aiming to keep the actual circulating supply well below the 8 Billion mark and potentially create deflationary pressure over the long term. This includes:
+      * A significant portion (e.g., 50-75%) of transaction fees and intent processing fees.
+      * Fees from specific network actions (e.g., DID registration, deploying to Shard 5).
+      * All slashing penalties from validators or other staked roles for misbehavior.
+      * **Adaptive Burn Rates:** The proportion of fees burned versus those allocated to network treasuries or proposers can be dynamically adjusted by Shard 6 governance. This adaptability allows the network to respond to factors like network load, staking participation levels, and overall economic health, ensuring the burn mechanism remains effective and sustainable.
+  * **Incentives:** Staking rewards (for Validators and Delegators), Solver fees (for intent optimization), ZK Miner fees (for proof generation), and a portion of transaction/intent fees (for block proposers) create a balanced economic ecosystem that rewards various contributions to the network.
 
 ## Core Technological Features
 
